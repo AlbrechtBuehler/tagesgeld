@@ -145,12 +145,13 @@ const WT=['So','Mo','Di','Mi','Do','Fr','Sa'];
 const pad=n=>String(n).padStart(2,'0');
 const isoTag=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 
-// Rappen rein, Schweizer Schreibweise raus: 1'234.50, Minus als echtes Minuszeichen
+// Rappen rein, Schweizer Schreibweise raus: 1'234.50, Minus als echtes Minuszeichen.
+// Ganze Franken werden kaufmännisch gerundet (ab 50 Rappen auf), nicht abgeschnitten.
 function chf(r,ganz){
-  const neg=r<0, a=Math.abs(Math.round(r));
-  let f=Math.floor(a/100), s=String(f).replace(/\B(?=(\d{3})+(?!\d))/g,"'");
+  const a=Math.abs(Math.round(r)), f=ganz?Math.round(a/100):Math.floor(a/100);
+  let s=String(f).replace(/\B(?=(\d{3})+(?!\d))/g,"'");
   if(!ganz) s+='.'+pad(a%100);
-  return (neg?'−':'')+s;
+  return (r<0&&(f||!ganz&&a)?'−':'')+s;  // kein «−0», wenn die Rundung auf null fällt
 }
 function rappen(txt){
   const t=String(txt||'').replace(/['\s]/g,'').replace(',','.');
