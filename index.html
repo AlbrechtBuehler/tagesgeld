@@ -208,13 +208,15 @@ function rechne(){
   const tage=tageZw(t,P.bis);                          // heute bis Vortag des Lohns
   let vorher=0, heute=0, ein=0, aus=0;
   const drin=S.buchungen.filter(b=>b.datum>=P.von&&b.datum<P.bis);
+  // Einnahmen gehören der ganzen Periode, egal an welchem Tag gebucht: sie erhöhen den Topf
+  // und verteilen sich sofort auf alle verbleibenden Tage, nie nur auf den Buchungstag.
   for(const b of drin){
-    const n=b.typ==='ein'?b.betrag:-b.betrag;
-    if(b.typ==='ein')ein+=b.betrag;else aus+=b.betrag;
-    if(b.datum<t)vorher+=n;else heute+=n;              // Künftige zählen wie heute: schon verplant
+    if(b.typ==='ein'){ein+=b.betrag;continue}
+    aus+=b.betrag;
+    if(b.datum<t)vorher-=b.betrag;else heute-=b.betrag; // Künftige Ausgaben zählen wie heute: schon verplant
   }
   if(S.budget==null) return {tage,ein,aus,drin};
-  const start=S.budget+vorher, tagesbudget=start/tage, rest=start+heute;
+  const start=S.budget+ein+vorher, tagesbudget=start/tage, rest=start+heute;
   return {tage,ein,aus,drin,tagesbudget,heuteNoch:tagesbudget+heute,rest,morgen:tage>1?rest/(tage-1):null};
 }
 

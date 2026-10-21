@@ -1,6 +1,6 @@
 // Hält die App auf dem Handy, damit sie auch ohne Netz startet.
 // Bei jeder neuen Fassung FASSUNG hochzählen, sonst bleibt die alte im Speicher.
-const FASSUNG = 'tagesgeld-1';
+const FASSUNG = 'tagesgeld-2';
 const DATEIEN = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(FASSUNG).then(c => c.addAll(DATEIEN)).then(() => self.skipWaiting()));
