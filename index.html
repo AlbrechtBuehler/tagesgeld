@@ -83,6 +83,9 @@ button:focus-visible,input:focus-visible{outline:1px solid var(--tinte);outline-
 .hinweis:empty{display:none}
 .unten2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .fussbtn{justify-self:start}
+/* Zurücksetzen: abgesetzt vom Sichern, damit es nicht aus Versehen getippt wird */
+.zurueck{margin-top:22px;padding-top:18px;border-top:1px solid var(--rLeise);display:grid;gap:12px}
+#resetFrage{display:grid;gap:4px}
 @media (max-width:360px){.band .v{font-size:24px}}
 [hidden]{display:none!important}
 body{margin:0;padding-top:env(safe-area-inset-top,0px)}
@@ -134,6 +137,13 @@ body{margin:0;padding-top:env(safe-area-inset-top,0px)}
   <p class="hinweis" id="lohnHinweis"></p>
   <button type="button" class="fussbtn" id="budgetLos">Sichern</button>
   <p class="hinweis" id="ablage"></p>
+  <div class="zurueck">
+   <button type="button" class="fussbtn" id="resetLos">Alles zurücksetzen</button>
+   <div id="resetFrage" hidden>
+    <p class="hinweis">Löscht Budget, Lohntage und alle Buchungen auf diesem Handy. Lässt sich nicht rückgängig machen.</p>
+    <div class="weg"><button type="button" id="resetNein">Behalten</button><button type="button" class="ja" id="resetJa">Alles löschen</button></div>
+   </div>
+  </div>
  </footer>
 </div>
 
@@ -197,6 +207,7 @@ function lokal(){
     async speichern(b){b.id='l'+Date.now();d.buchungen.push(b);schreib();lade()},
     async loeschen(id){d.buchungen=d.buchungen.filter(b=>b.id!==id);schreib();lade()},
     async einstellen(e){Object.assign(d,e);schreib();lade()},
+    async zuruecksetzen(){d={budget:null,stichtage:[],buchungen:[]};try{localStorage.removeItem(LS)}catch(e){}lade()},
     neuePeriode(){lade()}
   };
   $('ablage').textContent='Gespeichert nur auf diesem Handy. Browserdaten löschen löscht auch die Buchungen.';
@@ -313,6 +324,18 @@ $('budgetLos').onclick=async()=>{
   st=[...new Set(st)].sort().slice(-36);
   document.activeElement.blur();
   try{await ablage.einstellen({budget:r??S.budget,stichtage:st})}catch(x){fehler(x)}
+};
+
+// Zurücksetzen: zweistufig, erst die Frage, dann «Alles löschen». Danach wie frisch installiert.
+const frage=an=>{$('resetFrage').hidden=!an;$('resetLos').hidden=an};
+$('resetLos').onclick=()=>frage(true);
+$('resetNein').onclick=()=>frage(false);
+$('resetJa').onclick=async()=>{
+  if(!ablage)return;
+  frage(false);S.offen=null;setzeTyp('aus');
+  $('betrag').value='';$('notiz').value='';$('los').disabled=true;$('datum').value=isoTag(jetzt);
+  document.activeElement&&document.activeElement.blur();
+  try{await ablage.zuruecksetzen()}catch(x){fehler(x)}
 };
 
 // Mitternacht und Lohntag bei offener Seite abfangen

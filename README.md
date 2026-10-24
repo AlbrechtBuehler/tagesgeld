@@ -13,6 +13,8 @@ Erfasst Einnahmen und Ausgaben und zeigt, wie viel vom Budget bis zum nächsten 
 
 Nur auf dem Gerät (`localStorage`). In dieses Repo gehört nie eine echte Zahl.
 
+«Alles zurücksetzen» (unten auf der Seite) löscht nach einer Rückfrage Budget, Lohntage und alle Buchungen; danach ist die App wie frisch installiert.
+
 ## Dateien
 
 | Datei | Was |
